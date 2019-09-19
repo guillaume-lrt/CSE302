@@ -182,7 +182,7 @@ std::ostream& MoveUnop::print(std::ostream& out) const {
 }
 
 std::ostream& Print::print(std::ostream& out) const {
-  // TODO
+  out << "print ";
   return out;
 }
 
