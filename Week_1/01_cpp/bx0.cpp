@@ -63,5 +63,3 @@ int main(int argc, char **argv) {
     std::cout << exe_file << " created.\n";
   }
 }
-
-//erkgh
