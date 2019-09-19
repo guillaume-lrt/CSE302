@@ -39,7 +39,8 @@ int main(int argc, char **argv) {
     // TODO: convert a bx::source::Prog to a bx::target::Prog using
     // maximal munch. Note: the line below is bogus. It is there just
     // to get it to compile, and represents the empty target program.
-    target::Prog target_prog{std::list<target::Dest>(), std::list<target::Instr*>()};
+
+    target::Prog target_prog = target_program(prog);
 
     std::ofstream c_out;
     c_out.open(c_file);
