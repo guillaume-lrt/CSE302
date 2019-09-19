@@ -162,32 +162,32 @@ std::ostream& operator<<(std::ostream& out, Instr& i) {
 }
 
 std::ostream& MoveImm::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->imm << ";";
   return out;
 }
 
 std::ostream& MoveCp::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->source << ";";
   return out;
 }
 
 std::ostream& MoveBinop::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->left_source << this->op << this->right_source << ";";
   return out;
 }
 
 std::ostream& MoveUnop::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->op << this->source << ";";
   return out;
 }
 
 std::ostream& Print::print(std::ostream& out) const {
-  out << "print ";
+  out << "PRINT(" << this->source << ")" << ";";
   return out;
 }
 
 std::ostream& Comment::print(std::ostream& out) const {
-  // TODO
+  out << "// " << this->comment << ";";
   return out;
 }
 
