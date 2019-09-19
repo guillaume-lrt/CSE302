@@ -43,10 +43,10 @@ int main(int argc, char **argv) {
 
     std::ofstream c_out;
     c_out.open(c_file);
-    c_out << "#include \"bx0.h\"\n";  
-    c_out << "#include <stdio.h>\n";  
-    c_out << "#include <stdint.h>\n";  
-    c_out << "//static const char* const __print_fmt = \"\%ld\\n\";\n";  
+    c_out << "#include \"bx0.h\"\n";
+    c_out << "#include <stdio.h>\n";
+    c_out << "#include <stdint.h>\n";
+    c_out << "//static const char* const __print_fmt = \"\%ld\\n\";\n";
     c_out << "int main(){\n";
     // TODO: fill in the print() implementations in ast.cpp
     c_out << target_prog;
@@ -63,3 +63,5 @@ int main(int argc, char **argv) {
     std::cout << exe_file << " created.\n";
   }
 }
+
+//erkgh
