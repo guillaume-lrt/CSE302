@@ -168,4 +168,7 @@ std::ostream& operator<<(std::ostream& out, Prog &prog);
 
 } // bx::target
 
+target::Prog target_program(const bx::source::Prog prog);
+void topdown_much_expr(const bx::source::Expr* e, const bx::target::Dest d);
+
 } // bx

@@ -162,41 +162,41 @@ std::ostream& operator<<(std::ostream& out, Instr& i) {
 }
 
 std::ostream& MoveImm::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->imm << ";";
   return out;
 }
 
 std::ostream& MoveCp::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = x_" << this->source << ";";
   return out;
 }
 
 std::ostream& MoveBinop::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = x_" << this->left_source << this->op << "x_" << this->right_source << ";";
   return out;
 }
 
 std::ostream& MoveUnop::print(std::ostream& out) const {
-  // TODO
+  out << "x_" << this->dest << " = " << this->op << "x_" <<this->source << ";";
   return out;
 }
 
 std::ostream& Print::print(std::ostream& out) const {
-  out << "print ";
+  out << "PRINT(x_" << this->source << ")" << ";";
   return out;
 }
 
 std::ostream& Comment::print(std::ostream& out) const {
-  // TODO
+  out << "// " << this->comment << ";";
   return out;
 }
 
 std::ostream& operator<<(std::ostream &out, Prog& prog) {
   if (prog.symbol_table.size() > 0) {
     out << "// symbol table\n";
-    out << "int64_t ";
+
     for (auto d : prog.symbol_table)
-      out << d << ' ';
+      out << "int64_t " << "x_" << d << ';';
     out << "\n";
   }
   out << "// code\n";
@@ -206,5 +206,58 @@ std::ostream& operator<<(std::ostream &out, Prog& prog) {
 }
 
 } // bx::target
+
+std::list<target::Instr*> instruction;
+std::list<target::Dest> symbol_table;
+std::map<std::string,target::Dest> table;
+int var_counter = 2;
+
+target::Prog target_program(const source::Prog prog){
+  for (auto stmt : prog){
+    if (auto move = dynamic_cast<source::Move*>(stmt)){
+      if (table.find(move->dest->label) == table.end()){
+        table[move->dest->label] = ++var_counter;
+      }
+      topdown_much_expr(move->source, table[move->dest->label]);
+    }
+    if (auto prnt = dynamic_cast<source::Print*>(stmt)){
+      target::Dest fresh = ++var_counter;
+      topdown_much_expr(prnt->arg,fresh);
+      instruction.push_back(new target::Print(fresh));
+    }
+  }
+  for (int i = 2; i <= var_counter; i++){
+    symbol_table.push_back(i);
+  }
+  return target::Prog(symbol_table, instruction);
+}
+
+void topdown_much_expr(const source::Expr* e, const target::Dest d){
+  if (auto imm = dynamic_cast<const source::Immediate*>(e)){
+    auto instrct = new target::MoveImm(d,imm->value);
+    instruction.push_back(instrct);
+  }
+  else if (auto var= dynamic_cast<const source::Variable*>(e)){
+    if (table.find(var->label) == table.end()){
+      table[var->label] = var_counter ++;
+    }
+    auto instrct = new target::MoveCp(d,table[var->label]);
+    instruction.push_back(instrct);
+  }
+  else if (auto uno = dynamic_cast<const source::UnopApp*>(e)){
+    target::Dest fresh = ++var_counter;
+    topdown_much_expr(uno->arg,fresh);
+    auto instrct = new target::MoveUnop(d,uno->op,fresh);
+    instruction.push_back(instrct);
+  }
+  else if (auto bino = dynamic_cast<const source::BinopApp*>(e)){
+    target::Dest fresh = ++var_counter;
+    target::Dest fresh_bis = ++var_counter;
+    topdown_much_expr(bino->left_arg,fresh);
+    topdown_much_expr(bino->right_arg,fresh_bis);
+    auto instrct = new target::MoveBinop(d,fresh,bino->op,fresh_bis);
+    instruction.push_back(instrct);
+  }
+}
 
 } // bx
