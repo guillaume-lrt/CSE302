@@ -14,3 +14,9 @@ m = x + y * 2;
 print m;
 n = (x + y) * 2;
 print n;
+a = ~n
+print a;
+b = a >> 2;
+print b;
+c = (a & b) % (n ^ m)
+print c
