@@ -162,17 +162,31 @@ std::ostream& operator<<(std::ostream& out, Instr& i) {
 }
 
 std::ostream& MoveImm::print(std::ostream& out) const {
-  out << "x_" << this->dest << " = " << this->imm << ";";
+  out << "    movq $" << this->imm << ", " << 8*(this->dest) << "(%rsp)";
   return out;
 }
 
 std::ostream& MoveCp::print(std::ostream& out) const {
-  out << "x_" << this->dest << " = x_" << this->source << ";";
+  out << "    movq " << 8*this->source << "(%rsp), %R11\n    " << "movq %R11, " << 8*this->dest << "(%rsp)";
   return out;
 }
 
 std::ostream& MoveBinop::print(std::ostream& out) const {
-  out << "x_" << this->dest << " = x_" << this->left_source << this->op << "x_" << this->right_source << ";";
+  out << "    movq " << 8*this->right_source << "(%rsp), %R8\n    movq " << 8*this->left_source << "(%rsp), %R9\n";
+  switch (this->op){
+  case bx::source::Binop::Add: out << "    addq %R8, %R9\n";
+  case bx::source::Binop::Subtract: out << "    subq %R8, %R9\n";
+  //case bx::source::Binop::Multiply: out << "    addq %R8, %R9\n";
+  //case bx::source::Binop::Divide: out << "    addq %R8, %R9\n";
+  //case bx::source::Binop::Modulus: out << "    addq %R8, %R9\n";
+  //case bx::source::Binop::BitAnd: out << "    andq %R8, %R9\n";
+  //case bx::source::Binop::BitOr: out << "    orq %R8, %R9\n";
+  //case bx::source::Binop::BitXor: out << "    xorq %R8, %R9\n";
+  //case bx::source::Binop::Lshift: out << "    salq %R8, %R9\n";   // not finish, need to use %cl
+  //case bx::source::Binop::Rshift: out << "    sarq %R8, %R9\n";
+}
+
+  out << "    movq %R9, %R10\n    movq %R10, " << 8*this->dest << "(%rsp)";
   return out;
 }
 
@@ -182,7 +196,7 @@ std::ostream& MoveUnop::print(std::ostream& out) const {
 }
 
 std::ostream& Print::print(std::ostream& out) const {
-  out << "PRINT(x_" << this->source << ")" << ";";
+  out << "    movq " << 8*this->source << "(%rsp),%rdi\n    callq bx0_print";
   return out;
 }
 
@@ -195,9 +209,9 @@ std::ostream& operator<<(std::ostream &out, Prog& prog) {
   if (prog.symbol_table.size() > 0) {
     out << "// symbol table\n";
 
-    for (auto d : prog.symbol_table)
-      out << "int64_t " << "x_" << d << ';';
-    out << "\n";
+    //for (auto d : prog.symbol_table)
+      //out << "int64_t " << "x_" << d << ';';
+    //out << "\n";
   }
   out << "// code\n";
   for (auto i : prog.body)
@@ -210,7 +224,7 @@ std::ostream& operator<<(std::ostream &out, Prog& prog) {
 std::list<target::Instr*> instruction;
 std::list<target::Dest> symbol_table;
 std::map<std::string,target::Dest> table;
-int var_counter = 2;
+int var_counter = 1;
 
 target::Prog target_program(const source::Prog prog){
   for (auto stmt : prog){
@@ -226,7 +240,7 @@ target::Prog target_program(const source::Prog prog){
       instruction.push_back(new target::Print(fresh));
     }
   }
-  for (int i = 2; i <= var_counter; i++){
+  for (int i = 1; i <= var_counter; i++){
     symbol_table.push_back(i);
   }
   return target::Prog(symbol_table, instruction);

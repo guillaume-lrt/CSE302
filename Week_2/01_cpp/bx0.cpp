@@ -42,8 +42,9 @@ int main(int argc, char **argv) {
 
     target::Prog target_prog = target_program(prog);
 
-    int n = 4;  // temporary value, suppose to be the number of temparies that prog needs
-    int res = n * 8;   // = number of bytes to allocate
+    int n = target_prog.symbol_table.size();  // temporary value, suppose to be the number of temparies that prog needs
+    std::cout << n;
+    int res = n * 8 + 8;   // = number of bytes to allocate
 
     std::ofstream c_out;
     c_out.open(c_file);
@@ -52,12 +53,12 @@ int main(int argc, char **argv) {
     c_out << "    pushq %rbp		# save the old value of RBP\n";
     c_out << "    movq %rsp, %rbp	# make RSP (stack top) a copy of RBP\n\n";
     c_out << "    #allocation of n stack slots\n";
-    c_out << "    subq $" <<res<< ", %rsp	# res = n * 8\n\n";
-    c_out << "    movq $12, %rdi		# test\n";
-    c_out << "    callq bx0_print		# test\n";
-    c_out << "    #############################\n/*\n";
+    c_out << "    subq $" <<res<< ", %rsp	# res = n * 8 with n = " <<n<< "\n\n";
+    //c_out << "    movq $12, %rdi		# test\n";
+    //c_out << "    callq bx0_print		# test\n";
+    c_out << "    #############################\n\n";
     c_out << target_prog;
-    c_out << "    #############################\n*/\n";
+    c_out << "    #############################\n\n";
     c_out << "    movq %rbp, %rsp	# restore the old RSP (deallocate temps)\n";
     c_out << "    popq %rbp		# restore the old RBP\n";
     c_out << "    movq $0, %rax		# return code 0 stored in RAX\n";
@@ -78,5 +79,6 @@ int main(int argc, char **argv) {
     std::cout << exe_file << " created.\n";
     std::string cmd2 = "./" + exe_file;
     std::cout << cmd2 << std::endl;
+    std::system(cmd2.c_str());
   }
 }

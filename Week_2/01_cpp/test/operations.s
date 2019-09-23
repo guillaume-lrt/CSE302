@@ -6,60 +6,115 @@ main:
     movq %rsp, %rbp	# make RSP (stack top) a copy of RBP
 
     #allocation of n stack slots
-    subq $32, %rsp	# res = n * 8
+    subq $408, %rsp	# res = n * 8 with n = 51
 
     movq $12, %rdi		# test
     callq bx0_print		# test
     #############################
 /*
 // symbol table
-int64_t x_2;int64_t x_3;int64_t x_4;int64_t x_5;int64_t x_6;int64_t x_7;int64_t x_8;int64_t x_9;int64_t x_10;int64_t x_11;int64_t x_12;int64_t x_13;int64_t x_14;int64_t x_15;int64_t x_16;int64_t x_17;int64_t x_18;int64_t x_19;int64_t x_20;int64_t x_21;int64_t x_22;int64_t x_23;int64_t x_24;int64_t x_25;int64_t x_26;int64_t x_27;int64_t x_28;int64_t x_29;int64_t x_30;int64_t x_31;int64_t x_32;int64_t x_33;int64_t x_34;int64_t x_35;int64_t x_36;int64_t x_37;int64_t x_38;int64_t x_39;
 // code
-x_3 = 10;
-x_4 = x_3;
-PRINT(x_4);
-x_6 = 2;
-x_7 = x_3;
-x_5 = x_6*x_7;
-x_8 = x_5;
-PRINT(x_8);
-x_10 = x_5;
-x_11 = 2;
-x_9 = x_10/x_11;
-x_12 = x_9;
-PRINT(x_12);
-x_16 = x_9;
-x_17 = x_3;
-x_14 = x_16-x_17;
-x_15 = x_5;
-x_13 = x_14-x_15;
-x_18 = x_13;
-PRINT(x_18);
-x_20 = x_13;
-x_21 = x_13;
-x_19 = x_20+x_21;
-x_22 = x_19;
-PRINT(x_22);
-x_24 = x_19;
-x_23 = -x_24;
-x_25 = x_23;
-PRINT(x_25);
-x_27 = x_3;
-x_29 = x_5;
-x_30 = 2;
-x_28 = x_29*x_30;
-x_26 = x_27+x_28;
-x_31 = x_26;
-PRINT(x_31);
-x_35 = x_3;
-x_36 = x_5;
-x_33 = x_35+x_36;
-x_34 = 2;
-x_32 = x_33*x_34;
-x_37 = x_32;
-PRINT(x_37);
-x_39 = x_32;
-x_38 = ~x_39;
+$10, 16(%rsp)
+movq 16(%rsp), %R11
+    movq %R11, 24(%rsp)
+movq 24(%rsp),rdi
+    callq bx0_print
+$2, 40(%rsp)
+movq 16(%rsp), %R11
+    movq %R11, 48(%rsp)
+x_4 = x_5*x_6;
+movq 32(%rsp), %R11
+    movq %R11, 56(%rsp)
+movq 56(%rsp),rdi
+    callq bx0_print
+movq 32(%rsp), %R11
+    movq %R11, 72(%rsp)
+$2, 80(%rsp)
+x_8 = x_9/x_10;
+movq 64(%rsp), %R11
+    movq %R11, 88(%rsp)
+movq 88(%rsp),rdi
+    callq bx0_print
+movq 64(%rsp), %R11
+    movq %R11, 120(%rsp)
+movq 16(%rsp), %R11
+    movq %R11, 128(%rsp)
+x_13 = x_15-x_16;
+movq 32(%rsp), %R11
+    movq %R11, 112(%rsp)
+x_12 = x_13-x_14;
+movq 96(%rsp), %R11
+    movq %R11, 136(%rsp)
+movq 136(%rsp),rdi
+    callq bx0_print
+movq 96(%rsp), %R11
+    movq %R11, 152(%rsp)
+movq 96(%rsp), %R11
+    movq %R11, 160(%rsp)
+x_18 = x_19+x_20;
+movq 144(%rsp), %R11
+    movq %R11, 168(%rsp)
+movq 168(%rsp),rdi
+    callq bx0_print
+movq 144(%rsp), %R11
+    movq %R11, 184(%rsp)
+x_22 = -x_23;
+movq 176(%rsp), %R11
+    movq %R11, 192(%rsp)
+movq 192(%rsp),rdi
+    callq bx0_print
+movq 16(%rsp), %R11
+    movq %R11, 208(%rsp)
+movq 32(%rsp), %R11
+    movq %R11, 224(%rsp)
+$2, 232(%rsp)
+x_27 = x_28*x_29;
+x_25 = x_26+x_27;
+movq 200(%rsp), %R11
+    movq %R11, 240(%rsp)
+movq 240(%rsp),rdi
+    callq bx0_print
+movq 16(%rsp), %R11
+    movq %R11, 272(%rsp)
+movq 32(%rsp), %R11
+    movq %R11, 280(%rsp)
+x_32 = x_34+x_35;
+$2, 264(%rsp)
+x_31 = x_32*x_33;
+movq 248(%rsp), %R11
+    movq %R11, 288(%rsp)
+movq 288(%rsp),rdi
+    callq bx0_print
+movq 248(%rsp), %R11
+    movq %R11, 304(%rsp)
+x_37 = ~x_38;
+movq 296(%rsp), %R11
+    movq %R11, 312(%rsp)
+movq 312(%rsp),rdi
+    callq bx0_print
+movq 296(%rsp), %R11
+    movq %R11, 328(%rsp)
+$2, 336(%rsp)
+x_40 = x_41>>x_42;
+movq 320(%rsp), %R11
+    movq %R11, 344(%rsp)
+movq 344(%rsp),rdi
+    callq bx0_print
+movq 296(%rsp), %R11
+    movq %R11, 376(%rsp)
+movq 320(%rsp), %R11
+    movq %R11, 384(%rsp)
+x_45 = x_47&x_48;
+movq 248(%rsp), %R11
+    movq %R11, 392(%rsp)
+movq 200(%rsp), %R11
+    movq %R11, 400(%rsp)
+x_46 = x_49^x_50;
+x_44 = x_45%x_46;
+movq 352(%rsp), %R11
+    movq %R11, 408(%rsp)
+movq 408(%rsp),rdi
+    callq bx0_print
     #############################
 */
     movq %rbp, %rsp	# restore the old RSP (deallocate temps)

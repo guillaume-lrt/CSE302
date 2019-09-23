@@ -6,91 +6,200 @@ main:
     movq %rsp, %rbp	# make RSP (stack top) a copy of RBP
 
     #allocation of n stack slots
-    subq $32, %rsp	# res = n * 8
+    subq $288, %rsp	# res = n * 8 with n = 35
 
-    movq $12, %rdi		# test
-    callq bx0_print		# test
     #############################
-/*
+
 // symbol table
-int64_t x_2;int64_t x_3;int64_t x_4;int64_t x_5;int64_t x_6;int64_t x_7;int64_t x_8;int64_t x_9;int64_t x_10;int64_t x_11;int64_t x_12;int64_t x_13;int64_t x_14;int64_t x_15;int64_t x_16;int64_t x_17;int64_t x_18;int64_t x_19;int64_t x_20;int64_t x_21;int64_t x_22;int64_t x_23;int64_t x_24;int64_t x_25;int64_t x_26;int64_t x_27;int64_t x_28;int64_t x_29;int64_t x_30;int64_t x_31;int64_t x_32;int64_t x_33;int64_t x_34;int64_t x_35;int64_t x_36;
 // code
-x_3 = 0;
-x_4 = 1;
-x_5 = x_3;
-PRINT(x_5);
-x_6 = x_3;
-x_3 = x_4;
-x_7 = x_4;
-x_8 = x_6;
-x_4 = x_7+x_8;
-x_9 = x_3;
-PRINT(x_9);
-x_6 = x_3;
-x_3 = x_4;
-x_10 = x_4;
-x_11 = x_6;
-x_4 = x_10+x_11;
-x_12 = x_3;
-PRINT(x_12);
-x_6 = x_3;
-x_3 = x_4;
-x_13 = x_4;
-x_14 = x_6;
-x_4 = x_13+x_14;
-x_15 = x_3;
-PRINT(x_15);
-x_6 = x_3;
-x_3 = x_4;
-x_16 = x_4;
-x_17 = x_6;
-x_4 = x_16+x_17;
-x_18 = x_3;
-PRINT(x_18);
-x_6 = x_3;
-x_3 = x_4;
-x_19 = x_4;
-x_20 = x_6;
-x_4 = x_19+x_20;
-x_21 = x_3;
-PRINT(x_21);
-x_6 = x_3;
-x_3 = x_4;
-x_22 = x_4;
-x_23 = x_6;
-x_4 = x_22+x_23;
-x_24 = x_3;
-PRINT(x_24);
-x_6 = x_3;
-x_3 = x_4;
-x_25 = x_4;
-x_26 = x_6;
-x_4 = x_25+x_26;
-x_27 = x_3;
-PRINT(x_27);
-x_6 = x_3;
-x_3 = x_4;
-x_28 = x_4;
-x_29 = x_6;
-x_4 = x_28+x_29;
-x_30 = x_3;
-PRINT(x_30);
-x_6 = x_3;
-x_3 = x_4;
-x_31 = x_4;
-x_32 = x_6;
-x_4 = x_31+x_32;
-x_33 = x_3;
-PRINT(x_33);
-x_6 = x_3;
-x_3 = x_4;
-x_34 = x_4;
-x_35 = x_6;
-x_4 = x_34+x_35;
-x_36 = x_3;
-PRINT(x_36);
+    movq $0, 16(%rsp)
+    movq $1, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 32(%rsp)
+    movq 32(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 48(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 56(%rsp)
+    movq 56(%rsp), %R8
+    movq 48(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 64(%rsp)
+    movq 64(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 72(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 80(%rsp)
+    movq 80(%rsp), %R8
+    movq 72(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 88(%rsp)
+    movq 88(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 96(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 104(%rsp)
+    movq 104(%rsp), %R8
+    movq 96(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 112(%rsp)
+    movq 112(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 120(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 128(%rsp)
+    movq 128(%rsp), %R8
+    movq 120(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 136(%rsp)
+    movq 136(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 144(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 152(%rsp)
+    movq 152(%rsp), %R8
+    movq 144(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 160(%rsp)
+    movq 160(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 168(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 176(%rsp)
+    movq 176(%rsp), %R8
+    movq 168(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 184(%rsp)
+    movq 184(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 192(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 200(%rsp)
+    movq 200(%rsp), %R8
+    movq 192(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 208(%rsp)
+    movq 208(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 216(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 224(%rsp)
+    movq 224(%rsp), %R8
+    movq 216(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 232(%rsp)
+    movq 232(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 240(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 248(%rsp)
+    movq 248(%rsp), %R8
+    movq 240(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 256(%rsp)
+    movq 256(%rsp),%rdi
+    callq bx0_print
+    movq 16(%rsp), %R11
+    movq %R11, 40(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 16(%rsp)
+    movq 24(%rsp), %R11
+    movq %R11, 264(%rsp)
+    movq 40(%rsp), %R11
+    movq %R11, 272(%rsp)
+    movq 272(%rsp), %R8
+    movq 264(%rsp), %R9
+    addq %R8, %R9
+    subq %R8, %R9
+    movq %R9, %R10
+    movq %R10, 24(%rsp)
+    movq 16(%rsp), %R11
+    movq %R11, 280(%rsp)
+    movq 280(%rsp),%rdi
+    callq bx0_print
     #############################
-*/
+
     movq %rbp, %rsp	# restore the old RSP (deallocate temps)
     popq %rbp		# restore the old RBP
     movq $0, %rax		# return code 0 stored in RAX
