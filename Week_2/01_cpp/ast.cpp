@@ -171,27 +171,46 @@ std::ostream& MoveCp::print(std::ostream& out) const {
   return out;
 }
 
-std::ostream& MoveBinop::print(std::ostream& out) const {
-  out << "    movq " << 8*this->right_source << "(%rsp), %R8\n    movq " << 8*this->left_source << "(%rsp), %R9\n";
-  switch (this->op){
-  case bx::source::Binop::Add: out << "    addq %R8, %R9\n";
-  case bx::source::Binop::Subtract: out << "    subq %R8, %R9\n";
-  //case bx::source::Binop::Multiply: out << "    addq %R8, %R9\n";
-  //case bx::source::Binop::Divide: out << "    addq %R8, %R9\n";
-  //case bx::source::Binop::Modulus: out << "    addq %R8, %R9\n";
-  //case bx::source::Binop::BitAnd: out << "    andq %R8, %R9\n";
-  //case bx::source::Binop::BitOr: out << "    orq %R8, %R9\n";
-  //case bx::source::Binop::BitXor: out << "    xorq %R8, %R9\n";
-  //case bx::source::Binop::Lshift: out << "    salq %R8, %R9\n";   // not finish, need to use %cl
-  //case bx::source::Binop::Rshift: out << "    sarq %R8, %R9\n";
-}
+std::ostream& MoveBinop::print(std::ostream& out) const {    // separate mult, divi, modu and the rest
+  if (source::Binop::Add == this->op || source::Binop::Subtract == this->op || source::Binop::BitAnd == this->op 
+    || source::Binop::BitOr == this->op || source::Binop::BitXor == this->op || source::Binop::Lshift == this->op 
+    || source::Binop::Rshift == this->op){
+    out << "    movq " << 8*this->right_source << "(%rsp), %R8\n    movq " << 8*this->left_source << "(%rsp), %R9\n";
 
-  out << "    movq %R9, %R10\n    movq %R10, " << 8*this->dest << "(%rsp)";
-  return out;
+    if (source::Binop::Add == this->op){out << "    addq %R8, %R9\n";}
+    else if (source::Binop::Subtract == this->op){out << "    subq %R8, %R9\n";}
+    else if (source::Binop::BitAnd == this->op){out << "    andq %R8, %R9\n";}
+    else if (source::Binop::BitOr == this->op){out << "    orq %R8, %R9\n";}
+    else if (source::Binop::BitXor == this->op){out << "    xorq %R8, %R9\n";}
+    else if (source::Binop::Lshift == this->op){
+      out << "    movq %R8, %rcx\n";   // put R8 in rcx, thus in cl necessary for salq/sarq
+      out << "    salq %cl, %R9\n";}
+    else if (source::Binop::Rshift == this->op){
+      out << "    movq %R8, %rcx\n";
+      out << "    sarq %cl, %R9\n";}
+
+    out << "    movq %R9, " << 8*this->dest << "(%rsp)";
+    return out;
+  }
+  else{
+    out << "    movq " << 8*this->right_source << "(%rsp), %R8\n    movq " << 8*this->left_source << "(%rsp), %rax\n";      // store direclty the left source in rax
+    if (source::Binop::Multiply == this->op){
+      out << "    imulq %R8\n    movq %rax, " << 8*this->dest << "(%rsp)";     // multiply RAX and R8 and store in RDX:RAX
+    }
+    else{   
+      out << "    cqo\n    idivq %R8\n";    // extend rax to rdx:rax, divide rdx:rax by R8 (right source) and store in rdx:rax
+      if (source::Binop::Divide == this->op){out << "    movq %rax, " << 8*this->dest << "(%rsp)";}  
+      else if (source::Binop::Modulus == this->op){out << "    movq %rdx, " << 8*this->dest << "(%rsp)";}
+    }
+    return out;
+  }
 }
 
 std::ostream& MoveUnop::print(std::ostream& out) const {
-  out << "x_" << this->dest << " = " << this->op << "x_" <<this->source << ";";
+  out << "    movq " << 8*this->source << "(%rsp), %R8\n";
+  if (this->op == source::Unop::Negate){out << "    negq %R8\n";}
+  if (this->op == source::Unop::BitNot){out << "    notq %R8\n";}
+  out << "    movq %R8, " << 8*this->dest << "(%rsp)";
   return out;
 }
 
@@ -201,7 +220,7 @@ std::ostream& Print::print(std::ostream& out) const {
 }
 
 std::ostream& Comment::print(std::ostream& out) const {
-  out << "// " << this->comment << ";";
+  out << "# " << this->comment << ";";
   return out;
 }
 
@@ -224,7 +243,7 @@ std::ostream& operator<<(std::ostream &out, Prog& prog) {
 std::list<target::Instr*> instruction;
 std::list<target::Dest> symbol_table;
 std::map<std::string,target::Dest> table;
-int var_counter = 1;
+int var_counter = 0;
 
 target::Prog target_program(const source::Prog prog){
   for (auto stmt : prog){
@@ -240,7 +259,7 @@ target::Prog target_program(const source::Prog prog){
       instruction.push_back(new target::Print(fresh));
     }
   }
-  for (int i = 1; i <= var_counter; i++){
+  for (int i = 0; i <= var_counter; i++){
     symbol_table.push_back(i);
   }
   return target::Prog(symbol_table, instruction);

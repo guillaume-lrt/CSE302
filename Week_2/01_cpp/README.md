@@ -18,5 +18,5 @@ Indications
   #if on the main folder (01_cpp)
 $ make
 $ make test/example.exe # for example fib.exe or operations.exe
-			# it will create example.s and example.exe
+			# it will create example.s and example.exe and run the assembly file
 $ ./test/example.exe	# to run the assembly file example.s
