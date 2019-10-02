@@ -24,6 +24,19 @@ std::ostream& operator<<(std::ostream& out, const Binop op) {
   }
 }
 
+std::ostream& operator<<(std::ostream& out, const BoolBinop op){
+  switch(op){
+    case BoolBinop::Inf: return out << '<';
+    case BoolBinop::Sup: return out << '>';
+    case BoolBinop::InfEqua: return out << '<=';
+    case BoolBinop::SupEqua: return out << '>=';
+    case BoolBinop::Inf: return out << '==';
+    case BoolBinop::Inf: return out << '!=';
+    case BoolBinop::Inf: return out << '&&';
+    case BoolBinop::Inf: return out << '||';
+  }
+}
+
 std::ostream& operator<<(std::ostream& out, const Unop op) {
   switch(op) {
   case Unop::Negate: return out << '-';

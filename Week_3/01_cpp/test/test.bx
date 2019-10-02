@@ -1,13 +1,11 @@
-x = -20;
-y = -30;
-print x+y;
-x = x * 10;
-y = y * 10;
-print x+y;
-
-print -7 / 3;
-print -7 % 3;
-
-print 7 / -3;
-print 7 % -3;
-print 6 % -3;
+var x = 10: int64;
+var y = 20 : int64;
+var z = x+ y : int64;
+var u,v = 42, w = v + 20 : int64;
+var n = 20, m = n : int64;
+var b1, b2 = true : bool;
+var a : int64;
+print(z);
+x = 12;
+a = x*x;
+print(a);
