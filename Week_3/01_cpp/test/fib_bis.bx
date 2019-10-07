@@ -1,0 +1,14 @@
+var counter = 1 : int64;
+var a = 0 : int64;
+var b = 1 : int64;
+var c : int64;
+
+print a;
+print b;
+while (counter < 10){
+    c = b;
+    b = a + b;
+    a = c;
+    print b;
+    counter = counter + 1;
+}

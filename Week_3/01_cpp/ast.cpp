@@ -28,19 +28,27 @@ std::ostream& operator<<(std::ostream& out, const BoolBinop op){
   switch(op){
     case BoolBinop::Inf: return out << '<';
     case BoolBinop::Sup: return out << '>';
-    case BoolBinop::InfEqua: return out << '<=';
-    case BoolBinop::SupEqua: return out << '>=';
-    case BoolBinop::Inf: return out << '==';
-    case BoolBinop::Inf: return out << '!=';
-    case BoolBinop::Inf: return out << '&&';
-    case BoolBinop::Inf: return out << '||';
+    case BoolBinop::InfEqua: return out << "<=";
+    case BoolBinop::SupEqua: return out << ">=";
+    case BoolBinop::Equal: return out << "==";
+    case BoolBinop::NotEqual: return out << "!=";
+    case BoolBinop::And: return out << "&&";
+    case BoolBinop::Or: return out << "||";
+    default: return out << "<?>";
   }
 }
 
-std::ostream& operator<<(std::ostream& out, const Unop op) {
+std::ostream& operator<<(std::ostream& out, const unop op) {
   switch(op) {
-  case Unop::Negate: return out << '-';
-  case Unop::BitNot: return out << "~";
+  case unop::negate: return out << '-';
+  case unop::bitnot: return out << "~";
+  default: return out << "<?>";
+  }
+}
+
+std::ostream& operator<<(std::ostream& out, const Boolunop op) {
+  switch(op) {
+  case unop::BoolNeg: return out << '!';
   default: return out << "<?>";
   }
 }
@@ -72,6 +80,21 @@ std::ostream& BinopApp::print(std::ostream& out) const {
   this->right_arg->print(out);
   return out << ')';
 }
+
+std::ostream& BoolBinopApp::print(std::ostream& out) const {
+  out << '(';
+  this->left_arg->print(out);
+  out << ' ' << this->op << ' ';
+  this->right_arg->print(out);
+  return out << ')';
+}
+
+std::ostream& BoolUnopApp::print(std::ostream& out) const {
+  out << '(' << this->op << ' ';
+  this->arg->print(out);
+  return out << ')';
+}
+
 
 std::ostream& Print::print(std::ostream& out) const {
   out << "print ";
