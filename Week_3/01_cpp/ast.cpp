@@ -276,7 +276,7 @@ public:
   void exitBlock(BX0Parser::BlockContext* ctx) override {
     
     auto stmt = new block(arg);
-    this->expr_stack.push_back(stmt)
+    this->expr_stack.push_back(stmt);
   }
   void exitIfelse(BX0Parser::IfelseContext* ctx) override {
 
