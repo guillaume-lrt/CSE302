@@ -38,17 +38,26 @@ std::ostream& operator<<(std::ostream& out, const BoolBinop op){
   }
 }
 
-std::ostream& operator<<(std::ostream& out, const unop op) {
+std::ostream& operator<<(std::ostream& out, const Unop op) {
   switch(op) {
-  case unop::negate: return out << '-';
-  case unop::bitnot: return out << "~";
+  case Unop::Negate: return out << '-';
+  case Unop::BitNot: return out << "~";
   default: return out << "<?>";
   }
 }
 
-std::ostream& operator<<(std::ostream& out, const Boolunop op) {
+std::ostream& operator<<(std::ostream& out, const BoolUnop op) {
   switch(op) {
-  case unop::BoolNeg: return out << '!';
+  case BoolUnop::BoolNeg: return out << '!';
+  default: return out << "<?>";
+  }
+}
+
+std::ostream& operator<<(std::ostream& out, const Type tipi) {
+  switch(tipi) {
+  case Type::INT: return out << 'int64';
+  case Type::BOOL: return out << 'bool';
+  case Type::ERROR: return out << 'ERROR';
   default: return out << "<?>";
   }
 }
@@ -65,6 +74,27 @@ std::ostream& Variable::print(std::ostream& out) const {
 std::ostream& Immediate::print(std::ostream& out) const {
   out << this->value;
   return out;
+}
+
+std::ostream& Bool::print(std::ostream& out) const {
+  out << this->boo;
+  return out;
+}
+
+Type Variable::gettype() const {
+  return this->type;
+}
+
+Type Immediate::gettype() const {
+  return type::INT;
+}
+
+Type Bool::gettype() const {
+  return type::BOOL;
+}
+
+Type Expr::gettype() const {
+  return Type::ERROR;
 }
 
 std::ostream& UnopApp::print(std::ostream& out) const {
@@ -95,6 +125,37 @@ std::ostream& BoolUnopApp::print(std::ostream& out) const {
   return out << ')';
 }
 
+Type UnopApp::gettype() const{
+  if (this->arg->gettype() == Type::INT){
+    return Type::INT;
+  }
+  return Type::ERROR;
+}
+
+Type BoolUnopApp::gettype() const{
+  if (this->arg->gettype() == Type::BOOL){
+    return Type::BOOL;
+  }
+  return Type::ERROR;
+}
+
+Type BinopApp::gettype() const{
+  if (this->left_arg->gettype() == this->right_arg->gettype()){
+    if (this->left_arg->gettype() == Type::INT){
+      return Type::INT;
+    }
+  }
+  return Type::ERROR;
+}
+
+Type BoolBinopApp::gettype() const{
+  if (this->left_arg->gettype() == this->right_arg->gettype()){
+    if (this->left_arg->gettype() == Type::BOOL){
+      return Type::BOOL;
+    }
+  }
+  return Type::ERROR;
+}
 
 std::ostream& Print::print(std::ostream& out) const {
   out << "print ";
@@ -106,6 +167,55 @@ std::ostream& Move::print(std::ostream& out) const {
   out << " = ";
   return this->source->print(out) << ';';
 }
+
+std::ostream& Block::print(std::ostream& out) const {
+  out << "{ \n";
+
+  for (auto stmt: this->arg){
+    out << '  ';
+    stmt->print(out);
+  }
+
+  return out << '} \n';
+}
+
+std::ostream& Ifelse::print(std::ostream& out) const {
+  out << "if ( ";
+  this->expression->print(out);
+  out << " ) ";
+  this->blocky->print(out);
+  out << "else ";
+  return this->arg->print(out) << ';';
+}
+
+std::ostream& Whilee::print(std::ostream& out) const {
+  out << "while ( ";
+  this->expression->print(out);
+  out << " ) ";
+  return this->blocky->print(out) << ';';
+}
+
+std::ostream& Vardecl::print(std::ostream& out) const {
+  this->var->type->print(out);
+  out << " ";
+  this->var->label->print(out);
+  if (this->expression != NULL){
+    out << " = ";
+    this->expression->print(out);
+  }
+  return out << '\n';
+}
+
+std::ostream& Prog::print(std::ostream& out) const {
+  for (auto vary: this->var){
+    vary->print(out);
+  }
+  for (auto stat: this->statem){
+    statem->print(out);
+  }
+  return out;
+}
+
 
 class SourceReader : public BX0BaseListener {
 private:
@@ -127,13 +237,54 @@ public:
     this->prog.push_back(stmt);
   }
   void exitUnop(BX0Parser::UnopContext* ctx) override {
-    Unop op(ctx->op->getText()[0] == '-' ?
-                    Unop::Negate :
-                    Unop::BitNot);
-    auto arg = this->expr_stack.back();
-    this->expr_stack.pop_back();
-    this->expr_stack.push_back(new UnopApp(op, arg));
+    std::string opy = ctx->op->getText();
+    if (opy[0] == '!'){
+      BoolUnop op(BoolUnop::BoolNeg);
+      auto arg = this->expr_stack.back();
+      this->expr_stack.pop_back();
+      this->expr_stack.push_back(new BoolUnopApp(op, arg));
+    }
+    else {
+      Unop op(opy[0] == '-' ? 
+                Unop::Negate :
+                Unop::BitNot);
+      auto arg = this->expr_stack.back();
+      this->expr_stack.pop_back();
+      this->expr_stack.push_back(new UnopApp(op, arg));
+    }
   }
+  void exitVarinit(BX0Parser::VarinitContext* ctx) override {
+    if (ctx->expr() == nullptr){
+
+    }
+    else {
+
+    }
+  }
+  void exitVardecl(BX0Parser::VardeclContext* ctx) override {
+    
+  }
+  void exitBoole(BX0Parser::BooleContext* ctx) override {
+
+  }
+  void exitInteger(BX0Parser::IntegerContext* ctx) override {
+    
+  }
+  void exitStatement(BX0Parser::StatementContext* ctx) override {
+
+  }
+  void exitBlock(BX0Parser::BlockContext* ctx) override {
+    
+    auto stmt = new block(arg);
+    this->expr_stack.push_back(stmt)
+  }
+  void exitIfelse(BX0Parser::IfelseContext* ctx) override {
+
+  }
+  void exitWhilee(BX0Parser::WhileeContext* ctx) override {
+
+  }
+
 private:
   void processBinop(Binop op) {
     auto right = this->expr_stack.back();
@@ -141,6 +292,13 @@ private:
     auto left = this->expr_stack.back();
     this->expr_stack.pop_back();
     this->expr_stack.push_back(new BinopApp(left, op, right));
+  }
+  void processBoolBinop(BoolBinop op) {
+    auto right = this->expr_stack.back();
+    this->expr_stack.pop_back();
+    auto left = this->expr_stack.back();
+    this->expr_stack.pop_back();
+    this->expr_stack.push_back(new BoolBinopApp(left, op, right));
   }
 public:
   void exitAdd(BX0Parser::AddContext* ctx) override {
@@ -155,9 +313,24 @@ public:
                        Binop::Modulus);
   }
   void exitShift(BX0Parser::ShiftContext *ctx) override {
-    this->processBinop(ctx->op->getText()[0] == '<' ?
-                       Binop::Lshift :
+    std::string opy =ctx->op->getText();
+    this->processBinop(opy[0] == '<' ? Binop::Lshift :
                        Binop::Rshift);
+  }
+  void exitInequality(BX0Parser::InequalityContext *ctx) override {
+    std::string opy =ctx->op->getText();
+    std::string temp_inf, temp_sup;
+    temp_inf.push_back('<');
+    temp_sup.push_back('>');
+    this->processBoolBinop(opy == temp_inf ? BoolBinop::Inf :
+                           opy == temp_sup ? BoolBinop::Sup :
+                           opy == "<=" ? BoolBinop::InfEqua :
+                       BoolBinop::SupEqua);
+  }
+  void exitEquality(BX0Parser::EqualityContext *ctx) override {
+    std::string opy =ctx->op->getText();
+    this->processBoolBinop(opy[0] == '=' ? BoolBinop::Equal :
+                       BoolBinop::NotEqual);
   }
   void exitAnd(BX0Parser::AndContext* ctx) override {
     this->processBinop(Binop::BitAnd);
@@ -168,11 +341,20 @@ public:
   void exitXor(BX0Parser::XorContext* ctx) override {
     this->processBinop(Binop::BitXor);
   }
+  void exitBooland(BX0Parser::BoolandContext* ctx) override {
+    this->processBoolBinop(BoolBinop::And);
+  }
+  void exitBoolor(BX0Parser::BoolorContext* ctx) override {
+    this->processBoolBinop(BoolBinop::Or);
+  }
   void exitVariable(BX0Parser::VariableContext* ctx) override {
     this->expr_stack.push_back(new Variable(ctx->VAR()->getText()));
   }
   void exitNumber(BX0Parser::NumberContext* ctx) override {
     this->expr_stack.push_back(new Immediate(std::stoi(ctx->NUM()->getText())));
+  }
+  void exitBoolean(BX0Parser::BooleanContext* ctx) override {
+    this->expr_stack.push_back(new Bool(ctx->BOOL()->getText()));
   }
 };
 
@@ -250,6 +432,51 @@ std::ostream& MoveUnop::print(std::ostream& out) const {
   return out;
 }
 
+std::ostream& MoveBoolBinop::print(std::ostream& out) const {    // separate mult, divi, modu and the rest
+  // if (source::BoolBinop::Inf == this->op || source::BoolBinop::Sup == this->op || source::BoolBinop::InfEqua == this->op
+  //   || source::BoolBinop::SupEqua == this->op || source::BoolBinop::Equal == this->op || source::BoolBinop::NotEqual == this->op
+  //   || source::BoolBinop::Rshift == this->op){
+  //   out << "    movq " << 8*this->left_source << "(%rsp), %R11\n";
+
+  //   if (source::BoolBinop::Add == this->op){out << "    addq " << 8*this->right_source << "(%rsp), %R11\n";}
+  //   else if (source::BoolBinop::Subtract == this->op){out << "    subq " << 8*this->right_source << "(%rsp), %R11\n";}
+  //   else if (source::BoolBinop::BitAnd == this->op){out << "    andq " << 8*this->right_source << "(%rsp), %R11\n";}
+  //   else if (source::BoolBinop::BitOr == this->op){out << "    orq " << 8*this->right_source << "(%rsp), %R11\n";}
+  //   else if (source::BoolBinop::BitXor == this->op){out << "    xorq " << 8*this->right_source << "(%rsp), %R11\n";}
+  //   else if (source::BoolBinop::Lshift == this->op){
+  //     out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";   // put right source in rcx, thus in cl necessary for salq/sarq
+  //     out << "    salq %cl, %R11\n";}
+  //   else if (source::BoolBinop::Rshift == this->op){
+  //     out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";
+  //     out << "    sarq %cl, %R11\n";}
+
+  //   out << "    movq %R11, " << 8*this->dest << "(%rsp)";
+  //   return out;
+  // }
+  // else{
+  //   out << "    movq " << 8*this->left_source << "(%rsp), %rax\n";      // store direclty the left source in rax
+  //   if (source::BoolBinop::Multiply == this->op){
+  //     out << "    imulq " << 8*this->right_source << "(%rsp)\n    movq %rax, " << 8*this->dest << "(%rsp)";     // multiply RAX and R8 and store in RDX:RAX
+  //   }
+  //   else{
+  //     out << "    cqo\n    idivq " << 8*this->right_source << "(%rsp)\n";    // extend rax to rdx:rax, divide rdx:rax by R8 (right source) and store in rdx:rax
+  //     if (source::BoolBinop::Divide == this->op){out << "    movq %rax, " << 8*this->dest << "(%rsp)";}
+  //     else if (source::BoolBinop::Modulus == this->op){out << "    movq %rdx, " << 8*this->dest << "(%rsp)";}
+  //   }
+  //   return out;
+  // }
+  return out;
+}
+
+std::ostream& MoveBoolUnop::print(std::ostream& out) const {
+  // out << "    movq " << 8*this->source << "(%rsp), %R11\n";
+  // if (this->op == source::BoolUnop::Negate){out << "    negq %R11\n";}
+  // if (this->op == source::BoolUnop::BitNot){out << "    notq %R11\n";}
+  // out << "    movq %R11, " << 8*this->dest << "(%rsp)";
+  return out;
+}
+
+
 std::ostream& Print::print(std::ostream& out) const {
   out << "    movq " << 8*this->source << "(%rsp),%rdi\n    callq bx0_print";
   return out;
@@ -325,6 +552,20 @@ void topdown_much_expr(const source::Expr* e, const target::Dest d){
     topdown_much_expr(bino->left_arg,fresh);
     topdown_much_expr(bino->right_arg,fresh_bis);
     auto instrct = new target::MoveBinop(d,fresh,bino->op,fresh_bis);
+    instruction.push_back(instrct);
+  }
+  else if (auto booluno = dynamic_cast<const source::BoolUnopApp*>(e)){
+    target::Dest fresh = ++var_counter;
+    topdown_much_expr(booluno->arg,fresh);
+    auto instrct = new target::BoolMoveUnop(d,booluno->op,fresh);
+    instruction.push_back(instrct);
+  }
+  else if (auto boolbino = dynamic_cast<const source::BoolBinopApp*>(e)){
+    target::Dest fresh = ++var_counter;
+    target::Dest fresh_bis = ++var_counter;
+    topdown_much_expr(boolbino->left_arg,fresh);
+    topdown_much_expr(boolbino->right_arg,fresh_bis);
+    auto instrct = new target::BoolMoveBinop(d,fresh,boolbino->op,fresh_bis);
     instruction.push_back(instrct);
   }
 }

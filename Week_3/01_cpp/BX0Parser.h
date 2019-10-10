@@ -18,7 +18,8 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, VAR = 36, NUM = 37, BOOL = 38, WS = 39
+    T__32 = 33, T__33 = 34, T__34 = 35, VAR = 36, NUM = 37, BOOL = 38, COMMENT = 39, 
+    WS = 40
   };
 
   enum {
@@ -189,8 +190,7 @@ public:
     IfelseContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ExprContext *expr();
-    std::vector<BlockContext *> block();
-    BlockContext* block(size_t i);
+    BlockContext *block();
     Ifelse_bisContext *ifelse_bis();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -205,6 +205,7 @@ public:
     Ifelse_bisContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IfelseContext *ifelse();
+    BlockContext *block();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
