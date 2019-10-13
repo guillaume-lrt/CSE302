@@ -9,7 +9,7 @@ using namespace bx;
 
 void display_source_program(source::Prog prog) {
   std::cout << "--- START OF AST ---\n";
-  for (auto stmt : prog) {
+  for (auto stmt : prog.statem) {
     std::cout << *stmt << std::endl;
   }
   std::cout << "--- END OF AST ---\n";
@@ -30,7 +30,8 @@ int main(int argc, char **argv) {
 
     // TODO: comment the following line of code out before submitting; it's only
     // meant for help with debuggin
-    display_source_program(prog);
+
+    prog.print(std::cout);
 
     auto file_root = bx_file.substr(0, bx_file.size() - 3);
     auto c_file = file_root + ".s";

@@ -55,9 +55,9 @@ std::ostream& operator<<(std::ostream& out, const BoolUnop op) {
 
 std::ostream& operator<<(std::ostream& out, const Type tipi) {
   switch(tipi) {
-  case Type::INT: return out << 'int64';
-  case Type::BOOL: return out << 'bool';
-  case Type::ERROR: return out << 'ERROR';
+  case Type::INT: return out << "int64";
+  case Type::BOOL: return out << "bool";
+  case Type::ERROR: return out << "ERROR";
   default: return out << "<?>";
   }
 }
@@ -86,11 +86,11 @@ Type Variable::gettype() const {
 }
 
 Type Immediate::gettype() const {
-  return type::INT;
+  return Type::INT;
 }
 
 Type Bool::gettype() const {
-  return type::BOOL;
+  return Type::BOOL;
 }
 
 Type Expr::gettype() const {
@@ -139,6 +139,7 @@ Type BoolUnopApp::gettype() const{
   return Type::ERROR;
 }
 
+
 Type BinopApp::gettype() const{
   if (this->left_arg->gettype() == this->right_arg->gettype()){
     if (this->left_arg->gettype() == Type::INT){
@@ -159,7 +160,7 @@ Type BoolBinopApp::gettype() const{
 
 std::ostream& Print::print(std::ostream& out) const {
   out << "print ";
-  return this->arg->print(out) << ';';
+  return this->arg->print(out) << ";\n";
 }
 
 std::ostream& Move::print(std::ostream& out) const {
@@ -169,14 +170,15 @@ std::ostream& Move::print(std::ostream& out) const {
 }
 
 std::ostream& Block::print(std::ostream& out) const {
-  out << "{ \n";
+  out << "{";
 
   for (auto stmt: this->arg){
-    out << '  ';
+    out << "\n";
+    out << "  ";
     stmt->print(out);
   }
 
-  return out << '} \n';
+  return out << "\n}";
 }
 
 std::ostream& Ifelse::print(std::ostream& out) const {
@@ -185,20 +187,21 @@ std::ostream& Ifelse::print(std::ostream& out) const {
   out << " ) ";
   this->blocky->print(out);
   out << "else ";
-  return this->arg->print(out) << ';';
+  this->block_else->print(out);
+  return out << ';';
 }
 
 std::ostream& Whilee::print(std::ostream& out) const {
-  out << "while ( ";
+  out << "while ";
   this->expression->print(out);
-  out << " ) ";
-  return this->blocky->print(out) << ';';
+  out << " ";
+  return this->blocky->print(out);
 }
 
 std::ostream& Vardecl::print(std::ostream& out) const {
-  this->var->type->print(out);
+  out << this->var->type;
   out << " ";
-  this->var->label->print(out);
+  out << this->var->label;
   if (this->expression != NULL){
     out << " = ";
     this->expression->print(out);
@@ -206,12 +209,12 @@ std::ostream& Vardecl::print(std::ostream& out) const {
   return out << '\n';
 }
 
-std::ostream& Prog::print(std::ostream& out) const {
-  for (auto vary: this->var){
+std::ostream& Prog::print(std::ostream& out) {
+  for (auto vary: this->varia){
     vary->print(out);
   }
   for (auto stat: this->statem){
-    statem->print(out);
+    stat->print(out);
   }
   return out;
 }
@@ -221,20 +224,26 @@ class SourceReader : public BX0BaseListener {
 private:
   Prog prog;
   std::list<Expr*> expr_stack;
+  std::list<Stmt*> stmt_stack;
+  std::map<std::string, Type> type_map;
+  std::list<Vardecl* > vardec_stack;
 public:
   Prog get_prog() { return this->prog; }
+  void exitProgram(BX0Parser::ProgramContext* ctx) override{ 
+    this->prog.statem = stmt_stack;
+  }
   void exitMove(BX0Parser::MoveContext* ctx) override {
-    auto dest = new Variable(ctx->VAR()->getText());
+    auto dest = new Variable(ctx->VAR()->getText(),type_map[ctx->VAR()->getText()]);
     auto source = this->expr_stack.back();
     this->expr_stack.pop_back();
     auto stmt = new Move(dest, source);
-    this->prog.push_back(stmt);
+    this->stmt_stack.push_back(stmt);
   }
   void exitPrint(BX0Parser::PrintContext* ctx) override {
     auto dest = this->expr_stack.back();
     this->expr_stack.pop_back();
     auto stmt = new Print(dest);
-    this->prog.push_back(stmt);
+    this->stmt_stack.push_back(stmt);
   }
   void exitUnop(BX0Parser::UnopContext* ctx) override {
     std::string opy = ctx->op->getText();
@@ -253,36 +262,72 @@ public:
       this->expr_stack.push_back(new UnopApp(op, arg));
     }
   }
+  void exitVardecl(BX0Parser::VardeclContext* ctx) override {
+    for (auto vardec : this->vardec_stack){
+      Type tp = ctx->type()->getText() == "int64" ? Type::INT : Type::BOOL;
+      vardec->var->type = tp;
+      type_map[vardec->var->label] = vardec->var->type;
+    }
+    vardec_stack.clear();
+  }
   void exitVarinit(BX0Parser::VarinitContext* ctx) override {
     if (ctx->expr() == nullptr){
-
+      auto dest = new Variable(ctx->VAR()->getText(),Type::ERROR);
+      Vardecl* vardec = new Vardecl(dest,NULL);
+      this->vardec_stack.push_back(vardec);
+      this->prog.varia.push_back(vardec);
     }
-    else {
-
+    else{
+      auto expression = expr_stack.back();
+      expr_stack.pop_back();
+      auto dest = new Variable(ctx->VAR()->getText(),Type::ERROR);
+      Vardecl* vardec = new Vardecl(dest,expression);
+      this->vardec_stack.push_back(vardec);
+      this->prog.varia.push_back(vardec);
     }
   }
-  void exitVardecl(BX0Parser::VardeclContext* ctx) override {
-    
-  }
-  void exitBoole(BX0Parser::BooleContext* ctx) override {
-
-  }
-  void exitInteger(BX0Parser::IntegerContext* ctx) override {
-    
-  }
-  void exitStatement(BX0Parser::StatementContext* ctx) override {
-
-  }
+  
   void exitBlock(BX0Parser::BlockContext* ctx) override {
-    
-    auto stmt = new block(arg);
-    this->expr_stack.push_back(stmt);
+    std::list<Stmt* > blocky;
+    int length = ctx->statement().size();
+    while (length-->0){
+      auto arg = stmt_stack.back();
+      this->stmt_stack.pop_back();
+      blocky.push_front(arg);
+    }
+    this->stmt_stack.push_back(new Block(blocky));
   }
-  void exitIfelse(BX0Parser::IfelseContext* ctx) override {
 
+  void exitIfelse(BX0Parser::IfelseContext* ctx) override {
+    auto condi = this->expr_stack.back();
+    this->expr_stack.pop_back();
+    Block* thenBlock;
+    Block* elseBlock;
+    if (ctx->ifelse_bis() == nullptr){                // if no second if else block
+      Stmt* thenstate = this->stmt_stack.back();
+      this->stmt_stack.pop_back();
+      thenBlock = dynamic_cast<Block* >(thenstate);
+      elseBlock = new Block(std::list<Stmt *>());       // list of empty statements
+      stmt_stack.push_back(new Ifelse(condi,thenBlock,elseBlock));
+    }
+    else{
+      auto elsestate = this->stmt_stack.back();
+      this->stmt_stack.pop_back();
+      auto thenstate = this->stmt_stack.back();
+      this->stmt_stack.pop_back();
+      elseBlock = dynamic_cast<Block* >(elsestate);
+      thenBlock = dynamic_cast<Block* >(thenstate);
+      stmt_stack.push_back(new Ifelse(condi,thenBlock,elseBlock));
+    }
+    
   }
   void exitWhilee(BX0Parser::WhileeContext* ctx) override {
-
+    auto condi = this->expr_stack.back();
+    this->expr_stack.pop_back();
+    auto statem = this->stmt_stack.back();
+    this->stmt_stack.pop_back();
+    auto blocky = dynamic_cast<Block* >(statem);
+    this->stmt_stack.push_back(new Whilee(condi,blocky));
   }
 
 private:
@@ -348,13 +393,20 @@ public:
     this->processBoolBinop(BoolBinop::Or);
   }
   void exitVariable(BX0Parser::VariableContext* ctx) override {
-    this->expr_stack.push_back(new Variable(ctx->VAR()->getText()));
+    auto temp_var = ctx->VAR()->getText();
+    if (type_map.find(temp_var) == type_map.end()){
+      this->expr_stack.push_back(new Variable(temp_var, Type::ERROR));   // not suppose to happen if the code is well typed
+    }
+    else{
+      auto temp_type = type_map[temp_var];
+      this->expr_stack.push_back(new Variable(ctx->VAR()->getText(),type_map[temp_var]));
+    }
   }
   void exitNumber(BX0Parser::NumberContext* ctx) override {
     this->expr_stack.push_back(new Immediate(std::stoi(ctx->NUM()->getText())));
   }
   void exitBoolean(BX0Parser::BooleanContext* ctx) override {
-    this->expr_stack.push_back(new Bool(ctx->BOOL()->getText()));
+    this->expr_stack.push_back(new Bool(ctx->BOOL()->getText() == "true" ? true : false));
   }
 };
 
@@ -386,6 +438,11 @@ std::ostream& MoveImm::print(std::ostream& out) const {
 
 std::ostream& MoveCp::print(std::ostream& out) const {
   out << "    movq " << 8*this->source << "(%rsp), %R11\n    " << "movq %R11, " << 8*this->dest << "(%rsp)";
+  return out;
+}
+
+std::ostream& MoveBool::print(std::ostream& out) const {
+  out << "TODO";
   return out;
 }
 
@@ -482,10 +539,34 @@ std::ostream& Print::print(std::ostream& out) const {
   return out;
 }
 
-std::ostream& Comment::print(std::ostream& out) const {
-  out << "# " << this->comment << ";";
+std::ostream& Ubranch::print(std::ostream& out) const {
+  out << "TODO";
   return out;
 }
+
+std::ostream& Bbranch::print(std::ostream& out) const {
+  out << "TODO";
+  return out;
+}
+
+std::ostream& Goto::print(std::ostream& out) const {
+  out << "TODO";
+  return out;
+}
+
+std::ostream& Start::print(std::ostream& out) const {
+  out << "TODO";
+  return out;
+}
+
+std::ostream& End::print(std::ostream& out) const {
+  out << "TODO";
+  return out;
+}
+// std::ostream& Comment::print(std::ostream& out) const {
+//   out << "# " << this->comment << ";";
+//   return out;
+// }
 
 std::ostream& operator<<(std::ostream &out, Prog& prog) {
   if (prog.symbol_table.size() > 0) {
@@ -509,7 +590,7 @@ std::map<std::string,target::Dest> table;
 int var_counter = 0;
 
 target::Prog target_program(const source::Prog prog){
-  for (auto stmt : prog){
+  for (auto stmt : prog.statem){
     if (auto move = dynamic_cast<source::Move*>(stmt)){
       if (table.find(move->dest->label) == table.end()){
         table[move->dest->label] = ++var_counter;
@@ -557,7 +638,7 @@ void topdown_much_expr(const source::Expr* e, const target::Dest d){
   else if (auto booluno = dynamic_cast<const source::BoolUnopApp*>(e)){
     target::Dest fresh = ++var_counter;
     topdown_much_expr(booluno->arg,fresh);
-    auto instrct = new target::BoolMoveUnop(d,booluno->op,fresh);
+    auto instrct = new target::MoveBoolUnop(d,booluno->op,fresh);
     instruction.push_back(instrct);
   }
   else if (auto boolbino = dynamic_cast<const source::BoolBinopApp*>(e)){
@@ -565,7 +646,7 @@ void topdown_much_expr(const source::Expr* e, const target::Dest d){
     target::Dest fresh_bis = ++var_counter;
     topdown_much_expr(boolbino->left_arg,fresh);
     topdown_much_expr(boolbino->right_arg,fresh_bis);
-    auto instrct = new target::BoolMoveBinop(d,fresh,boolbino->op,fresh_bis);
+    auto instrct = new target::MoveBoolBinop(d,fresh,boolbino->op,fresh_bis);
     instruction.push_back(instrct);
   }
 }

@@ -51,7 +51,7 @@ public:
 class Variable : public Expr {
 public:
   const std::string label;
-  const Type type;
+  Type type;
   Variable(std::string label, Type type) : label(label) , type(type){ }
   std::ostream& print(std::ostream& out) const override;
   Type gettype() const override;
@@ -118,7 +118,7 @@ public:
 // Statements
 
 class Stmt : public ASTNode { 
-  virtual std::ostream& print(std::ostream& out) const override;
+  // virtual std::ostream& print(std::ostream& out) const override;
 };
 
 class Print : public Stmt {
@@ -130,7 +130,7 @@ public:
 
 class Move : public Stmt {
 public:
-  const Variable* dest;
+  Variable* dest;
   const Expr* source;
   Move(Variable* dest, Expr* source) : dest(dest), source(source) { }
   std::ostream& print(std::ostream& out) const override;
@@ -147,8 +147,8 @@ class Ifelse : public Stmt {
 public:
   const Expr* expression;
   const Block* blocky;
-  const std::list<Stmt*> arg;
-  Ifelse(Expr* expression, Block* blocky,std::list<Stmt*> arg) : expression(expression), blocky(blocky), arg(arg) { }
+  const Block* block_else;
+  Ifelse(Expr* expression, Block* blocky,Block* block_else) : expression(expression), blocky(blocky), block_else(block_else) { }
   std::ostream& print(std::ostream& out) const override;
 };
 
@@ -163,21 +163,22 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // vardecl
 
-class Vardecl {
+class Vardecl : public ASTNode{
 public:
-  const Variable* var;
+  Variable* var;
   const Expr* expression;
   Vardecl(Variable* var, Expr* expression): var(var), expression(expression) { }
   std::ostream& print(std::ostream& out) const override;
 };
 
-// using Prog = std::list<Stmt*>;
+////////////////////////////////////////////////////////////////////////////////
+// Program
 
 class Prog{
 public:
   std::list<Vardecl*> varia;
   std::list<Stmt*> statem;
-  std::ostream& print(std::ostream& out) const override;
+  std::ostream& print(std::ostream& out);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

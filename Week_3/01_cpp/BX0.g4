@@ -12,8 +12,8 @@ varinit: VAR ('='expr)? ;
 
 statement: move | print | block | ifelse | whilee;
 
-move: VAR '=' expr;
-print: 'print' expr;
+move: VAR '=' expr ';';
+print: 'print' expr ';';
 block: '{'(statement)*'}';
 ifelse: 'if' '('expr')'block ('else'ifelse_bis)?;
 ifelse_bis: (ifelse|block);

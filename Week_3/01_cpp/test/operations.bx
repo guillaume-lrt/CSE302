@@ -20,6 +20,7 @@ var d1 = b1 || c1 : bool;
 var d2 = b2 && c2 : bool;
 var d3 = b1 && false : bool;
 var d4 = b1 == false: bool;
+var d5 = 10 : int64;
 
 print a;
 print b;
