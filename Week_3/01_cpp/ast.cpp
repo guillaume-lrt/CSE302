@@ -432,12 +432,12 @@ std::ostream& operator<<(std::ostream& out, Instr& i) {
 }
 
 std::ostream& MoveImm::print(std::ostream& out) const {
-  out << "    movq $" << this->imm << ", " << 8*(this->dest) << "(%rsp)";
+  // out << "    movq $" << this->imm << ", " << 8*(this->dest) << "(%rsp)";
   return out;
 }
 
 std::ostream& MoveCp::print(std::ostream& out) const {
-  out << "    movq " << 8*this->source << "(%rsp), %R11\n    " << "movq %R11, " << 8*this->dest << "(%rsp)";
+  // out << "    movq " << 8*this->source << "(%rsp), %R11\n    " << "movq %R11, " << 8*this->dest << "(%rsp)";
   return out;
 }
 
@@ -450,42 +450,42 @@ std::ostream& MoveBinop::print(std::ostream& out) const {    // separate mult, d
   if (source::Binop::Add == this->op || source::Binop::Subtract == this->op || source::Binop::BitAnd == this->op
     || source::Binop::BitOr == this->op || source::Binop::BitXor == this->op || source::Binop::Lshift == this->op
     || source::Binop::Rshift == this->op){
-    out << "    movq " << 8*this->left_source << "(%rsp), %R11\n";
+    // out << "    movq " << 8*this->left_source << "(%rsp), %R11\n";
 
-    if (source::Binop::Add == this->op){out << "    addq " << 8*this->right_source << "(%rsp), %R11\n";}
-    else if (source::Binop::Subtract == this->op){out << "    subq " << 8*this->right_source << "(%rsp), %R11\n";}
-    else if (source::Binop::BitAnd == this->op){out << "    andq " << 8*this->right_source << "(%rsp), %R11\n";}
-    else if (source::Binop::BitOr == this->op){out << "    orq " << 8*this->right_source << "(%rsp), %R11\n";}
-    else if (source::Binop::BitXor == this->op){out << "    xorq " << 8*this->right_source << "(%rsp), %R11\n";}
-    else if (source::Binop::Lshift == this->op){
-      out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";   // put right source in rcx, thus in cl necessary for salq/sarq
-      out << "    salq %cl, %R11\n";}
-    else if (source::Binop::Rshift == this->op){
-      out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";
-      out << "    sarq %cl, %R11\n";}
+    // if (source::Binop::Add == this->op){out << "    addq " << 8*this->right_source << "(%rsp), %R11\n";}
+    // else if (source::Binop::Subtract == this->op){out << "    subq " << 8*this->right_source << "(%rsp), %R11\n";}
+    // else if (source::Binop::BitAnd == this->op){out << "    andq " << 8*this->right_source << "(%rsp), %R11\n";}
+    // else if (source::Binop::BitOr == this->op){out << "    orq " << 8*this->right_source << "(%rsp), %R11\n";}
+    // else if (source::Binop::BitXor == this->op){out << "    xorq " << 8*this->right_source << "(%rsp), %R11\n";}
+    // else if (source::Binop::Lshift == this->op){
+    //   out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";   // put right source in rcx, thus in cl necessary for salq/sarq
+    //   out << "    salq %cl, %R11\n";}
+    // else if (source::Binop::Rshift == this->op){
+    //   out << "    movq " << 8*this->right_source << "(%rsp), %rcx\n";
+    //   out << "    sarq %cl, %R11\n";}
 
-    out << "    movq %R11, " << 8*this->dest << "(%rsp)";
+    // out << "    movq %R11, " << 8*this->dest << "(%rsp)";
     return out;
   }
   else{
-    out << "    movq " << 8*this->left_source << "(%rsp), %rax\n";      // store direclty the left source in rax
+    // out << "    movq " << 8*this->left_source << "(%rsp), %rax\n";      // store direclty the left source in rax
     if (source::Binop::Multiply == this->op){
-      out << "    imulq " << 8*this->right_source << "(%rsp)\n    movq %rax, " << 8*this->dest << "(%rsp)";     // multiply RAX and R8 and store in RDX:RAX
+      // out << "    imulq " << 8*this->right_source << "(%rsp)\n    movq %rax, " << 8*this->dest << "(%rsp)";     // multiply RAX and R8 and store in RDX:RAX
     }
     else{
-      out << "    cqo\n    idivq " << 8*this->right_source << "(%rsp)\n";    // extend rax to rdx:rax, divide rdx:rax by R8 (right source) and store in rdx:rax
-      if (source::Binop::Divide == this->op){out << "    movq %rax, " << 8*this->dest << "(%rsp)";}
-      else if (source::Binop::Modulus == this->op){out << "    movq %rdx, " << 8*this->dest << "(%rsp)";}
+      // out << "    cqo\n    idivq " << 8*this->right_source << "(%rsp)\n";    // extend rax to rdx:rax, divide rdx:rax by R8 (right source) and store in rdx:rax
+      // if (source::Binop::Divide == this->op){out << "    movq %rax, " << 8*this->dest << "(%rsp)";}
+      // else if (source::Binop::Modulus == this->op){out << "    movq %rdx, " << 8*this->dest << "(%rsp)";}
     }
     return out;
   }
 }
 
 std::ostream& MoveUnop::print(std::ostream& out) const {
-  out << "    movq " << 8*this->source << "(%rsp), %R11\n";
-  if (this->op == source::Unop::Negate){out << "    negq %R11\n";}
-  if (this->op == source::Unop::BitNot){out << "    notq %R11\n";}
-  out << "    movq %R11, " << 8*this->dest << "(%rsp)";
+  // out << "    movq " << 8*this->source << "(%rsp), %R11\n";
+  // if (this->op == source::Unop::Negate){out << "    negq %R11\n";}
+  // if (this->op == source::Unop::BitNot){out << "    notq %R11\n";}
+  // out << "    movq %R11, " << 8*this->dest << "(%rsp)";
   return out;
 }
 
@@ -535,7 +535,7 @@ std::ostream& MoveBoolUnop::print(std::ostream& out) const {
 
 
 std::ostream& Print::print(std::ostream& out) const {
-  out << "    movq " << 8*this->source << "(%rsp),%rdi\n    callq bx0_print";
+  // out << "    movq " << 8*this->source << "(%rsp),%rdi\n    callq bx0_print";
   return out;
 }
 
@@ -549,20 +549,6 @@ std::ostream& Bbranch::print(std::ostream& out) const {
   return out;
 }
 
-std::ostream& Goto::print(std::ostream& out) const {
-  out << "TODO";
-  return out;
-}
-
-std::ostream& Start::print(std::ostream& out) const {
-  out << "TODO";
-  return out;
-}
-
-std::ostream& End::print(std::ostream& out) const {
-  out << "TODO";
-  return out;
-}
 // std::ostream& Comment::print(std::ostream& out) const {
 //   out << "# " << this->comment << ";";
 //   return out;
@@ -588,67 +574,151 @@ std::list<target::Instr*> instruction;
 std::list<target::Dest> symbol_table;
 std::map<std::string,target::Dest> table;
 int var_counter = 0;
+int instruction_counter = 0;
 
 target::Prog target_program(const source::Prog prog){
   for (auto stmt : prog.statem){
     if (auto move = dynamic_cast<source::Move*>(stmt)){
-      if (table.find(move->dest->label) == table.end()){
-        table[move->dest->label] = ++var_counter;
-      }
-      topdown_much_expr(move->source, table[move->dest->label]);
+
+      // topdown_much_expr(move->source, table[move->dest->label]);
     }
     if (auto prnt = dynamic_cast<source::Print*>(stmt)){
-      target::Dest fresh = ++var_counter;
-      topdown_much_expr(prnt->arg,fresh);
-      instruction.push_back(new target::Print(fresh));
+      // target::Dest fresh = ++var_counter;
+      // topdown_much_expr(prnt->arg,fresh);
+      // instruction.push_back(new target::Print(fresh));
     }
   }
   for (int i = 0; i <= var_counter; i++){
-    symbol_table.push_back(i);
+    // symbol_table.push_back(i);
   }
   return target::Prog(symbol_table, instruction);
 }
 
-void topdown_much_expr(const source::Expr* e, const target::Dest d){
+int topdown_much_expr_int(const source::Expr* e, target::Dest* dest, int Lo){
   if (auto imm = dynamic_cast<const source::Immediate*>(e)){
-    auto instrct = new target::MoveImm(d,imm->value);
+    instruction_counter++;
+    int Li = instruction_counter;
+    auto instrct = new target::MoveImm(dest,imm->value,Li,Lo);
     instruction.push_back(instrct);
+    return Li;
   }
   else if (auto var= dynamic_cast<const source::Variable*>(e)){
-    if (table.find(var->label) == table.end()){
-      table[var->label] = var_counter ++;
+    if (var->gettype() == source::Type::INT){
+      instruction_counter++;
+      int Li = instruction_counter;
+      // auto instrct = new target::MoveCp(dest,table[var->label],Li,Lo);
+      // instruction.push_back(instrct);
+      return Li;
     }
-    auto instrct = new target::MoveCp(d,table[var->label]);
-    instruction.push_back(instrct);
   }
   else if (auto uno = dynamic_cast<const source::UnopApp*>(e)){
-    target::Dest fresh = ++var_counter;
-    topdown_much_expr(uno->arg,fresh);
-    auto instrct = new target::MoveUnop(d,uno->op,fresh);
+    target::Dest* source = new target::Dest(uno->gettype(),++var_counter);
+    // symbol_table.push_back(source);
+    instruction_counter++;
+    int L1 = instruction_counter;
+    // topdown_much_expr(uno->arg,source);
+    auto instrct = new target::MoveUnop(dest,uno->op,source,L1,Lo);
     instruction.push_back(instrct);
+    int Li = topdown_much_expr_int(uno->arg,source,L1);
+    return Li;
   }
   else if (auto bino = dynamic_cast<const source::BinopApp*>(e)){
-    target::Dest fresh = ++var_counter;
-    target::Dest fresh_bis = ++var_counter;
-    topdown_much_expr(bino->left_arg,fresh);
-    topdown_much_expr(bino->right_arg,fresh_bis);
-    auto instrct = new target::MoveBinop(d,fresh,bino->op,fresh_bis);
+    target::Dest* source_1 = new target::Dest(bino->gettype(),++var_counter);
+    // symbol_table.push_back(source_1);
+    target::Dest* source_2 = new target::Dest(bino->gettype(),++var_counter);
+    // symbol_table.push_back(source_2);
+    instruction_counter++;
+    int L2 = instruction_counter;
+    // topdown_much_expr(uno->arg,source);
+    auto instrct = new target::MoveBinop(dest,source_1,bino->op,source_2,L2,Lo);
     instruction.push_back(instrct);
+    int L1 = topdown_much_expr_int(bino->right_arg,source_2,L2);
+    int Li = topdown_much_expr_int(bino->left_arg,source_1,L1);
+    return Li;
+  }
+  return -1;
+}
+
+int topdown_much_expr_bool(const source::Expr* e, int Lt, int Lf){
+  if (auto boo = dynamic_cast<const source::Bool*>(e)){
+    if (boo->boo){
+      return Lt;
+    }
+    return Lf;
+  }
+  else if (auto var= dynamic_cast<const source::Variable*>(e)){
+    instruction_counter++;
+    int Li = instruction_counter;
+    // auto instrct = new target::Ubranch(table[var->label],Li,Lt,Lf);
+    // instruction.push_back(instrct);
+    return Li;
   }
   else if (auto booluno = dynamic_cast<const source::BoolUnopApp*>(e)){
-    target::Dest fresh = ++var_counter;
-    topdown_much_expr(booluno->arg,fresh);
-    auto instrct = new target::MoveBoolUnop(d,booluno->op,fresh);
-    instruction.push_back(instrct);
+    return topdown_much_expr_bool(booluno->arg, Lf, Lt);
   }
-  else if (auto boolbino = dynamic_cast<const source::BoolBinopApp*>(e)){
-    target::Dest fresh = ++var_counter;
-    target::Dest fresh_bis = ++var_counter;
-    topdown_much_expr(boolbino->left_arg,fresh);
-    topdown_much_expr(boolbino->right_arg,fresh_bis);
-    auto instrct = new target::MoveBoolBinop(d,fresh,boolbino->op,fresh_bis);
-    instruction.push_back(instrct);
+  else if (auto bino = dynamic_cast<const source::BoolBinopApp*>(e)){
+    if (bino->op == source::BoolBinop::And){
+      int L1 = topdown_much_expr_bool(bino->right_arg, Lt, Lf);
+      return topdown_much_expr_bool(bino->left_arg, L1, Lf);
+    }
+    else if (bino->op == source::BoolBinop::Or){
+      int L1 = topdown_much_expr_bool(bino->right_arg, Lt, Lf);
+      return topdown_much_expr_bool(bino->left_arg, Lt, L1);
+    }
+    else if (bino->left_arg->gettype() == source::Type::INT){
+      instruction_counter++;
+      int L2 = instruction_counter;
+      target::Dest* source_1 = new target::Dest(source::Type::INT,++var_counter);
+      // symbol_table.push_back(source_1);
+      target::Dest* source_2 = new target::Dest(source::Type::INT,++var_counter);
+      // symbol_table.push_back(source_2);
+      
+      // topdown_much_expr(uno->arg,source);
+      // auto instrct = new target::Bbranch(source_1,source_2,bino->op,L2,Lt,Lf);
+      // instruction.push_back(instrct);
+      int L1 = topdown_much_expr_int(bino->right_arg,source_2,L2);
+      int Li = topdown_much_expr_int(bino->left_arg,source_1,L1);
+      return Li;
+    }
+    // else if (bino->op == source::BoolBinop::Equal){
+    //   const source::Expr* expr_1 = bino->left_arg;
+    //   const source::Expr* expr_2 = bino->right_arg;
+    //   source::Expr* expr_1_bis = new source::BoolBinopApp(expr_1, source::BoolBinop::And,expr_2);
+    //   source::Expr* expr_2_bis = new source::BoolBinopApp(expr_1, source::BoolBinop::Or,expr_2);
+    //   source::Expr* expr_2_tri = new source::BoolUnopApp(source::BoolUnop::boolNot,expr_2_bis);
+    //   source::Expr* expr_3 = new source::BoolBinopApp(expr_1_bis, source::BoolBinop::Or,expr_2_tri);
+    //   return topdown_much_expr_bool(expr_3, Lt, Lf);      
+    // }
+    // else {        // if (bino->op == source::bino::NotEqual){
+    //   const source::Expr* expr_1 = bino->left_arg;
+    //   const source::Expr* expr_2 = bino->right_arg;
+    //   source::Expr* expr_1_bis = new source::BoolBinopApp(expr_1, source::BoolBinop::And,expr_2);
+    //   source::Expr* expr_2_bis = new source::BoolBinopApp(expr_1, source::BoolBinop::Or,expr_2);
+    //   source::Expr* expr_1_tri = new source::BoolUnopApp(source::BoolUnop::boolNot,expr_1_bis);
+    //   source::Expr* expr_3 = new source::BoolBinopApp(expr_1_tri, source::BoolBinop::Or,expr_2_bis);
+    //   return topdown_much_expr_bool(expr_3, Lt, Lf); 
+    // }
+  }
+  return -1;
+}
+
+void topdown_much_statem(const source::Stmt* s, int Lo){
+  if (auto move = dynamic_cast<const source::Move *>(s)){
+    // TODO
+  }
+  else if (auto print = dynamic_cast<const source::Print *>(s)){
+    // TODO
+  }
+  else if (auto block = dynamic_cast<const source::Block *>(s)){
+    // TODO
+  }
+  else if (auto ifelse = dynamic_cast<const source::Ifelse *>(s)){
+    // TODO
+  }
+  else if (auto whilee = dynamic_cast<const source::Whilee *>(s)){
+    // TODO
   }
 }
+
 
 } // bx

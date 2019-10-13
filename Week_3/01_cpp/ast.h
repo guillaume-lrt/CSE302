@@ -191,73 +191,132 @@ source::Prog read_program(std::string file);
 
 namespace target {
 
-using Dest = int;
+class Dest {
+public:
+  source::Type type;
+  int dest;
+  Dest(source::Type type, int dest) : type(type), dest(dest) { }
+};
 
 class Instr {
 public:
+  int inLabel, outLabel;
   virtual std::ostream& print(std::ostream &out) const = 0;
 };
 std::ostream& operator<<(std::ostream& out, Instr& i);
 
 class MoveImm : public Instr {
 public:
-  const Dest dest;
+  const Dest *dest;
   const int imm;
-  MoveImm(Dest dest, int imm) : dest(dest), imm(imm) { }
+  const int inLabel, outLabel;
+  MoveImm(Dest *dest, int imm, int inLabel, int outLabel) : 
+        dest(dest), imm(imm), inLabel(inLabel), outLabel(outLabel) { }
+  std::ostream& print(std::ostream &out) const override;
+};
+
+class MoveBool : public Instr {
+public:
+  const Dest* dest;
+  const bool boo;
+  const int inLabel, outLabel;
+  MoveBool(Dest *dest, bool boo, int inLabel, int outLabel) : 
+        dest(dest), boo(boo), inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;
 };
 
 class MoveCp : public Instr {
 public:
-  const Dest dest, source;
-  MoveCp(Dest dest, Dest source) : dest(dest), source(source) { }
+  const Dest *dest, *source;
+  const int inLabel, outLabel;
+  MoveCp(Dest *dest, Dest *source, int inLabel, int outLabel) : 
+        dest(dest), source(source), inLabel(inLabel), outLabel(outLabel) { }
+  std::ostream& print(std::ostream &out) const override; 
+};
+
+class MoveBoolCp : public Instr {
+public:
+  const Dest *dest, *source;
+  const int inLabel, outLabel;
+  MoveBoolCp(Dest *dest, Dest *source, bool boo, int inLabel, int outLabel) : 
+        dest(dest), source(source), inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override; 
 };
 
 class MoveBinop : public Instr {
 public:
   const source::Binop op;
-  const Dest dest;
-  const Dest left_source, right_source;
-  MoveBinop(Dest dest, Dest left_source, source::Binop op, Dest right_source)
-    : dest(dest), left_source(left_source), op(op), right_source(right_source) { }
+  const Dest *dest;
+  const Dest *left_source, *right_source;
+  const int inLabel;
+  const int outLabel;
+  MoveBinop(Dest *dest, Dest *left_source, source::Binop op, Dest *right_source, int inLabel, int outLabel)
+    : dest(dest), left_source(left_source), op(op), right_source(right_source),
+      inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;  
 };
 
 class MoveUnop : public Instr {
 public:
   const source::Unop op;
-  const Dest dest;
-  const Dest source;
-  MoveUnop(Dest dest, source::Unop op, Dest source)
-    : dest(dest), op(op), source(source) { }
+  const Dest* dest;
+  const Dest* source;
+  const int inLabel, outLabel;
+  MoveUnop(Dest *dest, source::Unop op, Dest *source, int inLabel, int ouLabel)
+    : dest(dest), op(op), source(source), inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;
 };
 
 class MoveBoolBinop : public Instr {
 public:
   const source::BoolBinop op;
-  const Dest dest;
-  const Dest left_source, right_source;
-  MoveBoolBinop(Dest dest, Dest left_source, source::BoolBinop op, Dest right_source)
-    : dest(dest), left_source(left_source), op(op), right_source(right_source) { }
+  const Dest *dest;
+  const Dest *left_source, *right_source;
+  const int inLabel, outLabel;
+  MoveBoolBinop(Dest *dest, Dest *left_source, source::BoolBinop op, Dest *right_source, int inLabel, int outLabel)
+    : dest(dest), left_source(left_source), op(op), right_source(right_source),
+      inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;  
 };
 
 class MoveBoolUnop : public Instr {
 public:
   const source::BoolUnop op;
-  const Dest dest;
-  const Dest source;
-  MoveBoolUnop(Dest dest, source::BoolUnop op, Dest source)
-    : dest(dest), op(op), source(source) { }
+  const Dest* dest;
+  const Dest* source;
+  const int inLabel, outLabel;
+  MoveBoolUnop(Dest *dest, source::BoolUnop op, Dest *source, int inLabel, int ouLabel)
+    : dest(dest), op(op), source(source), inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;
 };
 
+class Ubranch : public Instr
+{
+public:
+  const Dest *dest;
+  const int inLabel, outLabel, outLabel_bis;
+  Ubranch(Dest *dest, int inLabel, int outLabel, int outLabel_bis) : 
+          dest(dest), inLabel(inLabel), outLabel(outLabel), outLabel_bis(outLabel_bis) { }
+  std::ostream &print(std::ostream &out) const override;
+};
+
+class Bbranch : public Instr
+{
+public:
+  const Dest *dest1;
+  const Dest *dest2;
+  const int inLabel, outLabel, outLabel_bis;
+  Bbranch(Dest *dest1,Dest *dest2, int inLabel, int outLabel, int outLabel_bis) : 
+          dest1(dest1), dest2(dest2), inLabel(inLabel), outLabel(outLabel), outLabel_bis(outLabel_bis) { }
+  std::ostream &print(std::ostream &out) const override;
+};
+
+
 class Print : public Instr {
 public:
-  const Dest source;
-  Print(Dest source) : source(source) { }
+  const Dest *source;
+  const int inLabel, outLabel;
+  Print(Dest *source, int inLabel, int outLabel) : source(source), inLabel(inLabel), outLabel(outLabel) { }
   std::ostream& print(std::ostream &out) const override;
 };
 
@@ -280,7 +339,9 @@ std::ostream& operator<<(std::ostream& out, Prog &prog);
 
 } // bx::target
 
-target::Prog target_program(const bx::source::Prog prog);
-void topdown_much_expr(const bx::source::Expr* e, const bx::target::Dest d);
+target::Prog target_program(const source::Prog prog);
+int topdown_much_expr_int(const source::Expr* e, target::Dest *dest, int Lo);
+int topdown_much_expr_bool(const source::Expr* e, int Lt, int Lf);
+void topdown_much_statem(const source::Stmt* s, int Lo);
 
 } // bx

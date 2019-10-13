@@ -6,20 +6,11 @@ main:
     movq %rsp, %rbp	# make RSP (stack top) a copy of RBP
 
     #allocation of n stack slots
-    subq $48, %rsp	# res = n * 8 with n = 5
+    subq $8, %rsp	# res = n * 8 with n = 0
 
     #############################
 
-// symbol table
 // code
-    movq 8(%rsp), %R11
-    movq %R11, 8(%rsp)
-    movq 8(%rsp),%rdi
-    callq bx0_print
-    movq 24(%rsp), %R11
-    movq %R11, 24(%rsp)
-    movq 24(%rsp),%rdi
-    callq bx0_print
     #############################
 
     movq %rbp, %rsp	# restore the old RSP (deallocate temps)
