@@ -1,0 +1,30 @@
+proc main() { 
+    var i = 0 : int64; 
+    while (i < 10) { 
+        print fibo(i); // can call functions defined later 
+        i = i + 1; 
+    } 
+    // implicit return at end of proc 
+}
+// self-recursion 
+fun fibo(n : int64) : int64 { 
+    if (n == 0) return 0; 
+    if (n == 1) return 1; 
+    return fibo(n - 1) + fibo(n - 2); // all code paths must return a value 
+}
+
+
+proc collatz(n : int64) { 
+    print n; 
+    if (n % 2 == 0) return collatz(n / 2); 
+    return collatz(3 * n + 1);
+}
+
+fun is_even_nat(n : int64) : bool { 
+    if (n == 0) return true; 
+    return is_odd_nat(n - 1); 
+}
+
+fun is_odd_nat(n : int64) : bool { 
+    return is_even_nat(n - 1); 
+}
