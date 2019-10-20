@@ -191,7 +191,7 @@ std::ostream& Ifelse::print(std::ostream& out) const {
   return out << ';';
 }
 
-std::ostream& Whilee::print(std::ostream& out) const {
+std::ostream& WhileLoop::print(std::ostream& out) const {
   out << "while ";
   this->expression->print(out);
   out << " ";
@@ -289,7 +289,7 @@ public:
   
   void exitBlock(BX0Parser::BlockContext* ctx) override {
     std::list<Stmt* > blocky;
-    int length = ctx->statement().size();
+    int length = ctx->stmt().size();
     while (length-->0){
       auto arg = stmt_stack.back();
       this->stmt_stack.pop_back();
@@ -303,7 +303,7 @@ public:
     this->expr_stack.pop_back();
     Block* thenBlock;
     Block* elseBlock;
-    if (ctx->ifelse_bis() == nullptr){                // if no second if else block
+    if (ctx->ifCont() == nullptr){                // if no second if else block
       Stmt* thenstate = this->stmt_stack.back();
       this->stmt_stack.pop_back();
       thenBlock = dynamic_cast<Block* >(thenstate);
@@ -321,13 +321,13 @@ public:
     }
     
   }
-  void exitWhilee(BX0Parser::WhileeContext* ctx) override {
+  void exitWhileLoop(BX0Parser::WhileLoopContext* ctx) override {
     auto condi = this->expr_stack.back();
     this->expr_stack.pop_back();
     auto statem = this->stmt_stack.back();
     this->stmt_stack.pop_back();
     auto blocky = dynamic_cast<Block* >(statem);
-    this->stmt_stack.push_back(new Whilee(condi,blocky));
+    this->stmt_stack.push_back(new WhileLoop(condi,blocky));
   }
 
 private:
@@ -346,12 +346,12 @@ private:
     this->expr_stack.push_back(new BoolBinopApp(left, op, right));
   }
 public:
-  void exitAdd(BX0Parser::AddContext* ctx) override {
+  void exitAdditive(BX0Parser::AdditiveContext* ctx) override {
     this->processBinop(ctx->op->getText()[0] == '+' ?
                        Binop::Add :
                        Binop::Subtract);
   }
-  void exitMul(BX0Parser::MulContext* ctx) override {
+  void exitMultiplicative(BX0Parser::MultiplicativeContext* ctx) override {
     std::string op = ctx->op->getText();
     this->processBinop(op[0] == '*' ? Binop::Multiply :
                        op[0] == '/' ? Binop::Divide :
@@ -362,7 +362,7 @@ public:
     this->processBinop(opy[0] == '<' ? Binop::Lshift :
                        Binop::Rshift);
   }
-  void exitInequality(BX0Parser::InequalityContext *ctx) override {
+  void exitInequation(BX0Parser::InequationContext *ctx) override {
     std::string opy =ctx->op->getText();
     std::string temp_inf, temp_sup;
     temp_inf.push_back('<');
@@ -372,24 +372,24 @@ public:
                            opy == "<=" ? BoolBinop::InfEqua :
                        BoolBinop::SupEqua);
   }
-  void exitEquality(BX0Parser::EqualityContext *ctx) override {
+  void exitEquation(BX0Parser::EquationContext *ctx) override {
     std::string opy =ctx->op->getText();
     this->processBoolBinop(opy[0] == '=' ? BoolBinop::Equal :
                        BoolBinop::NotEqual);
   }
-  void exitAnd(BX0Parser::AndContext* ctx) override {
+  void exitBitAnd(BX0Parser::BitAndContext* ctx) override {
     this->processBinop(Binop::BitAnd);
   }
-  void exitOr(BX0Parser::OrContext* ctx) override {
+  void exitBitOr(BX0Parser::BitOrContext* ctx) override {
     this->processBinop(Binop::BitOr);
   }
-  void exitXor(BX0Parser::XorContext* ctx) override {
+  void exitBitXor(BX0Parser::BitXorContext* ctx) override {
     this->processBinop(Binop::BitXor);
   }
-  void exitBooland(BX0Parser::BoolandContext* ctx) override {
+  void exitBoolAnd(BX0Parser::BoolAndContext* ctx) override {
     this->processBoolBinop(BoolBinop::And);
   }
-  void exitBoolor(BX0Parser::BoolorContext* ctx) override {
+  void exitBoolOr(BX0Parser::BoolOrContext* ctx) override {
     this->processBoolBinop(BoolBinop::Or);
   }
   void exitVariable(BX0Parser::VariableContext* ctx) override {
@@ -715,7 +715,7 @@ void topdown_much_statem(const source::Stmt* s, int Lo){
   else if (auto ifelse = dynamic_cast<const source::Ifelse *>(s)){
     // TODO
   }
-  else if (auto whilee = dynamic_cast<const source::Whilee *>(s)){
+  else if (auto whilee = dynamic_cast<const source::WhileLoop *>(s)){
     // TODO
   }
 }

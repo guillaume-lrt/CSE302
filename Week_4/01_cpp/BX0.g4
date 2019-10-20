@@ -1,9 +1,9 @@
-grammar BX ;
+grammar BX0 ;
 
 program: (globalvar | function | procedure)* ;
 
 globalvar: 'var' globalvar_init (',' globalvar_init)* ':' type ';' ;
-globalvar_init: VAR ('=' expr)? ;
+globalvar_init: VAR ('=' (NUM | BOOL))? ;
 
 function: 'fun' VAR '(' (parameter_groups)? ')' ':' type block ;
 
@@ -12,33 +12,39 @@ procedure: 'proc' '(' (parameter_groups)? ')' block ;
 parameter_groups: parameter_group (',' parameter_group)? ;
 parameter_group: VAR (',' VAR)* ':' type ;
 
-stmt: varDecl
-    | block                          # stmtGroup
-    | expr ';'                       # result
-    |  VAR '=' expr ';'              # move
-    | 'print' expr ';'               # print
-    | ifElse                         # if
-    | whileLoop                      # while
-    | 'return' (expr)? ','             # return
+stmt: vardecl 
+    | block 
+    | express 
+    | move 
+    | print 
+    | ifelse 
+    | whileLoop
+    | returnStmt
     ;
 
-varDecl: 'var' varInit (',' varInit)* ':' type ';' ;
-varInit: VAR ('=' expr)? ;
-
+vardecl: 'var' varinit (',' varinit)* ':' type ';' ;
+varinit: VAR ('=' expr)? ;
 type: 'int64' | 'bool' ;
 
-ifElse: 'if' '(' expr ')' block ('else' ifCont)? ;
-ifCont: ifElse                       # elseIf
-      | block                        # else
-      ;
+block: '{' (stmt)* '}' ;
+
+express: expr ';' ;
+
+move: VAR '=' expr ';';
+
+print: 'print' expr ';' ;
+
+ifelse: 'if' '(' expr ')' block ('else' ifCont)? ;
+ifCont: ifelse | block ;
 
 whileLoop: 'while' '(' expr ')' block ;
 
-block: '{' stmt* '}' ;
+returnStmt: 'return' expr? ';' ;
+
 
 expr: VAR                                # variable
     | NUM                                # number
-    | BOOL                               # bool
+    | BOOL                               # boolean
     | op=('~'|'-'|'!') expr              # unop
     | expr op=('*'|'/'|'%') expr         # multiplicative
     | expr op=('+'|'-') expr             # additive
@@ -48,8 +54,8 @@ expr: VAR                                # variable
     | expr '&' expr                      # bitAnd
     | expr '^' expr                      # bitXor
     | expr '|' expr                      # bitOr
-    | expr '&&' expr                     # logAnd
-    | expr '||' expr                     # logOr
+    | expr '&&' expr                     # BoolAnd
+    | expr '||' expr                     # BoolOr
     | VAR '(' (expr (',' expr)*)? ')'    # call
     | '(' expr ')'                       # parens
     ;

@@ -152,11 +152,11 @@ public:
   std::ostream& print(std::ostream& out) const override;
 };
 
-class Whilee : public Stmt {
+class WhileLoop : public Stmt {
 public:
   const Expr* expression;
   const Block* blocky;
-  Whilee(Expr* expression, Block* blocky) : expression(expression), blocky(blocky) { }
+  WhileLoop(Expr* expression, Block* blocky) : expression(expression), blocky(blocky) { }
   std::ostream& print(std::ostream& out) const override;
 };
 
