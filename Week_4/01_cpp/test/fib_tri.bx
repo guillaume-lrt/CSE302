@@ -1,0 +1,38 @@
+var is_fib = true : bool;
+var is_tri = !is_fib : bool; 	// if not fib
+
+
+var counter = 1 : int64;
+var max_counter = 10 : int64;
+var a = 0 : int64;
+var b = 1 : int64;
+var c = 1 : int64;
+var temp : int64;
+var temp_2 : int64;
+
+
+if (is_fib){
+	print a;
+	print b;
+	while (counter < max_counter){
+		temp = b;
+		b = a + b;
+		a = temp;
+		print b;
+		counter = counter + 1;
+	}
+}
+if (is_tri){
+	print a;
+	print b;
+	print c;
+	while (counter < max_counter){
+		temp = c;
+		temp_2 = b;
+		c = a + b + c;
+		a = b;
+		b = temp;
+		print c;
+		counter = counter + 1;
+	}
+}

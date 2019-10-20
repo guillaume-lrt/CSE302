@@ -1,0 +1,28 @@
+var False = true : bool;
+var True = false : bool;
+var s = true : bool;
+var i = -1 : int64;
+
+if (False){
+  if (!True){
+    print true;
+  }
+}
+else {
+  False = true;
+  print True;
+}
+if (!false) {
+  True = true;
+  print False;
+}
+print 48031;
+print !s;
+print 647;
+
+if (i * i-1 == 0){
+  print true;
+}
+else {
+  print True;
+}
