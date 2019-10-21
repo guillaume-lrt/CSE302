@@ -121,6 +121,14 @@ class Stmt : public ASTNode {
   // virtual std::ostream& print(std::ostream& out) const override;
 };
 
+class Vardecl : public Stmt{
+public:
+  Variable* var;
+  const Expr* expression;
+  Vardecl(Variable* var, Expr* expression): var(var), expression(expression) { }
+  std::ostream& print(std::ostream& out) const override;
+};
+
 class Print : public Stmt {
 public:
   const Expr* arg;
@@ -160,14 +168,51 @@ public:
   std::ostream& print(std::ostream& out) const override;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// vardecl
+class Express : public Stmt{
+public:
+  const Expr* expression;
+  Vardecl(Variable* var, Expr* expression): var(var), expression(expression) { }
+  std::ostream& print(std::ostream& out) const override;
+};
 
-class Vardecl : public ASTNode{
+class ReturnStmt : public Stmt{
+public:
+  const Expr* expression;
+  Vardecl(Variable* var, Expr* expression): var(var), expression(expression) { }
+  std::ostream& print(std::ostream& out) const override;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Globalvar
+
+class Globalvar : public ASTNode {
 public:
   Variable* var;
   const Expr* expression;
-  Vardecl(Variable* var, Expr* expression): var(var), expression(expression) { }
+  Globalvar(Variable* var, Expr* expression): var(var), expression(expression) { }
+  std::ostream& print(std::ostream& out) const override;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Functions
+
+class Function : public ASTNode {
+public:
+  Variable* var;
+  Type type;
+  const Block* blocky;
+  Globalvar(Variable* var, Block* blocky, Type type): var(var), blocky(blocky), type(type) { }
+  std::ostream& print(std::ostream& out) const override;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Procedure
+
+class Procedure : public ASTNode {
+public:
+  Variable* var;
+  const Block* blocky;
+  Globalvar(Variable* var, Block* blocky, Type type): var(var), blocky(blocky), type(type) { }
   std::ostream& print(std::ostream& out) const override;
 };
 
@@ -176,8 +221,11 @@ public:
 
 class Prog{
 public:
-  std::list<Vardecl*> varia;
-  std::list<Stmt*> statem;
+  // std::list<Vardecl*> varia;
+  // std::list<Stmt*> statem;
+  std::list<Globalvar*> globlvar;
+  std::list<Function*> func;
+  std::list<Procedure*> proc;
   std::ostream& print(std::ostream& out);
 };
 

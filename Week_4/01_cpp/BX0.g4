@@ -3,7 +3,7 @@ grammar BX0 ;
 program: (globalvar | function | procedure)* ;
 
 globalvar: 'var' globalvar_init (',' globalvar_init)* ':' type ';' ;
-globalvar_init: VAR ('=' (NUM | BOOL))? ;
+globalvar_init: VAR '=' (NUM | BOOL) ;
 
 function: 'fun' VAR '(' (parameter_groups)? ')' ':' type block ;
 
